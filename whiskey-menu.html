@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1210">
+  <title>Whiskey Menu</title>
+  <style>
+/* ===== Base & Variables ===== */
+:root {
+  --bg-darkest: #0d0a08;
+  --bg-dark: #1a1210;
+  --bg-card: #241c17;
+  --bg-card-hover: #2e241d;
+  --bg-input: #1a1210;
+  --border: #3d2e23;
+  --border-light: #5a4332;
+  --gold: #c8a46e;
+  --gold-light: #dfc08a;
+  --gold-dim: #8a6d3b;
+  --text-primary: #e8ddd0;
+  --text-secondary: #a89480;
+  --text-muted: #6b5a4a;
+  --accent-red: #8b3a3a;
+  --wood-grain: linear-gradient(
+    135deg,
+    rgba(58, 42, 28, 0.3) 0%,
+    rgba(42, 30, 20, 0.1) 30%,
+    rgba(58, 42, 28, 0.2) 60%,
+    rgba(42, 30, 20, 0.1) 100%
+  );
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, 'Helvetica Neue', 'Noto Sans KR', sans-serif;
+  background: var(--bg-darkest);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+/* ===== Menu View ===== */
+#menu-view {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-darkest);
+  background-image: var(--wood-grain);
+}
+
+/* Header */
+.menu-header {
+  text-align: center;
+  padding: 32px 20px 16px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.header-ornament {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto;
+}
+
+.menu-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: 12px;
+  color: var(--gold);
+  margin: 8px 0 2px;
+  text-shadow: 0 2px 20px rgba(200, 164, 110, 0.2);
+}
+
+.menu-subtitle {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  font-weight: 300;
+  letter-spacing: 8px;
+  color: var(--gold-dim);
+  margin-bottom: 8px;
+}
+
+/* Search Bar */
+.search-bar {
+  padding: 0 24px 8px;
+  flex-shrink: 0;
+}
+
+.search-bar input {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: block;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: -apple-system, 'Noto Sans KR', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-bar input:focus {
+  border-color: var(--gold-dim);
+}
+
+.search-bar input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Category Nav */
+.category-nav {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 20px 4px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.subcategory-nav {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 20px 16px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.subcategory-tab {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  padding: 4px 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.subcategory-tab:hover {
+  color: var(--gold-light);
+}
+
+.subcategory-tab.active {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.category-tab {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.category-tab:hover {
+  border-color: var(--gold-dim);
+  color: var(--gold-light);
+}
+
+.category-tab.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--bg-darkest);
+  font-weight: 600;
+}
+
+/* Menu Grid */
+.menu-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 24px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  align-content: start;
+}
+
+/* Menu Card */
+.menu-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px 24px;
+  transition: all 0.3s;
+}
+
+.menu-card:hover {
+  border-color: var(--gold-dim);
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold-light);
+  line-height: 1.3;
+}
+
+.card-name-en {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 1px;
+}
+
+.card-abv {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: rgba(200, 164, 110, 0.1);
+  padding: 2px 8px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-region {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.card-notes {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.card-price {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-top: 4px;
+}
+
+.card-price span {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.card-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.card-bottle-price {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.card-bottle-price span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Empty State */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 18px;
+}
+
+.empty-hint {
+  font-size: 14px;
+  margin-top: 8px;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* Admin Toggle */
+.admin-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  opacity: 0.4;
+  z-index: 100;
+}
+
+.admin-toggle:hover {
+  opacity: 1;
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+/* ===== Admin View ===== */
+.admin-view {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-darkest);
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-header h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--gold);
+  font-size: 22px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+}
+
+.admin-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  transition: background 0.2s;
+}
+
+.admin-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.admin-item-info {
+  flex: 1;
+}
+
+.admin-item-name {
+  font-weight: 500;
+  color: var(--gold-light);
+  font-size: 16px;
+}
+
+.admin-item-detail {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.admin-item.soldout-item {
+  opacity: 0.4;
+}
+
+.menu-card.soldout {
+  position: relative;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.soldout-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  background: transparent;
+  border: 2px solid var(--accent-red);
+  color: var(--accent-red);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  padding: 6px 20px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.admin-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-visible {
+  background: rgba(200, 164, 110, 0.15);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-size: 12px;
+}
+
+.btn-hidden {
+  background: rgba(139, 58, 58, 0.2);
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: -apple-system, 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--bg-darkest);
+}
+
+.btn-primary:hover {
+  background: var(--gold-light);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.btn-outline:hover {
+  border-color: var(--gold-dim);
+  color: var(--gold-light);
+}
+
+.btn-danger {
+  background: var(--accent-red);
+  color: var(--text-primary);
+}
+
+.btn-danger:hover {
+  background: #a04444;
+}
+
+.btn-close {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.btn-close:hover {
+  background: var(--bg-card);
+}
+
+.btn-small {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+/* ===== Modal ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 32px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-small {
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-small p {
+  margin: 16px 0 24px;
+  color: var(--text-secondary);
+}
+
+.modal h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--gold);
+  font-size: 22px;
+  margin-bottom: 24px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/* ===== Forms ===== */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-family: -apple-system, 'Noto Sans KR', sans-serif;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--gold-dim);
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+.form-group select option {
+  background: var(--bg-dark);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ===== PIN Input ===== */
+.pin-input-wrap {
+  margin: 20px 0 8px;
+}
+
+.pin-input {
+  width: 160px;
+  padding: 14px 20px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--gold);
+  font-size: 28px;
+  font-family: Georgia, serif;
+  text-align: center;
+  letter-spacing: 12px;
+  transition: border-color 0.2s;
+}
+
+.pin-input:focus {
+  outline: none;
+  border-color: var(--gold-dim);
+}
+
+.pin-error {
+  color: var(--accent-red) !important;
+  font-size: 13px !important;
+  margin: 0 0 8px !important;
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .menu-title { font-size: 32px; letter-spacing: 8px; }
+  .menu-subtitle { font-size: 12px; }
+  .menu-header { padding: 20px 16px 12px; }
+  .category-nav { padding: 4px 16px 12px; }
+  .category-tab { font-size: 13px; padding: 6px 14px; }
+  .menu-grid { padding: 0 16px 16px; grid-template-columns: 1fr; gap: 12px; }
+  .card-name { font-size: 16px; }
+  .card-price { font-size: 18px; }
+  .admin-header { flex-direction: column; align-items: flex-start; }
+}
+
+@media (min-width: 1200px) {
+  .menu-grid { grid-template-columns: repeat(3, 1fr); }
+}
+  </style>
+</head>
+<body>
+  <!-- Menu View -->
+  <div id="menu-view">
+    <header class="menu-header">
+      <div class="header-ornament"></div>
+      <h1 class="menu-title">WHISKEY</h1>
+      <p class="menu-subtitle">COLLECTION</p>
+      <div class="header-ornament"></div>
+    </header>
+
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="검색..." autocomplete="off">
+    </div>
+    <nav class="category-nav" id="category-nav"></nav>
+    <nav class="subcategory-nav" id="subcategory-nav"></nav>
+
+    <main class="menu-grid" id="menu-grid"></main>
+
+    <div class="empty-state" id="empty-state" style="display:none;">
+      <p>메뉴가 비어있습니다</p>
+      <p class="empty-hint">관리자 모드에서 위스키를 추가해주세요</p>
+    </div>
+
+    <button class="admin-toggle" id="admin-toggle" title="관리자 모드">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Admin View -->
+  <div id="admin-view" class="admin-view" style="display:none;">
+    <header class="admin-header">
+      <h2>관리자 모드</h2>
+      <div class="admin-actions">
+        <button class="btn btn-outline" id="btn-export">백업 내보내기</button>
+        <button class="btn btn-outline" id="btn-import">백업 가져오기</button>
+        <input type="file" id="import-file" accept=".json" style="display:none;">
+        <button class="btn btn-primary" id="btn-add">+ 위스키 추가</button>
+        <button class="btn btn-close" id="btn-close-admin">닫기</button>
+      </div>
+    </header>
+
+    <div class="admin-list" id="admin-list"></div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="modal" style="display:none;">
+    <div class="modal">
+      <h3 id="modal-title">위스키 추가</h3>
+      <form id="whiskey-form">
+        <input type="hidden" id="form-id">
+
+        <div class="form-group">
+          <label for="form-name">이름 *</label>
+          <input type="text" id="form-name" required placeholder="예: 맥켈란 18">
+        </div>
+
+        <div class="form-group">
+          <label for="form-name-en">영어 이름</label>
+          <input type="text" id="form-name-en" placeholder="예: Macallan 18">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-category">카테고리 *</label>
+            <select id="form-category" required>
+              <option value="">선택</option>
+              <option value="scotch">Scotch</option>
+              <option value="bourbon">Bourbon</option>
+              <option value="rye">Rye</option>
+              <option value="japanese">Japanese</option>
+              <option value="ib">Independent Bottler</option>
+              <option value="cocktail">Cocktail</option>
+              <option value="signature">Signature</option>
+              <option value="cognac">Cognac & Calvados</option>
+              <option value="rum">Rum & Tequila</option>
+              <option value="food">Food</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="form-subcategory">세부 지역</label>
+            <select id="form-subcategory">
+              <option value="">없음</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-region">지역 (직접 입력)</label>
+            <input type="text" id="form-region" placeholder="목록에 없는 경우 직접 입력">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-price">한잔 가격 (원) *</label>
+            <input type="number" id="form-price" required placeholder="예: 25000">
+          </div>
+          <div class="form-group">
+            <label for="form-bottle-price">바틀 가격 (원)</label>
+            <input type="number" id="form-bottle-price" placeholder="없으면 비워두기">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-abv">도수 (%)</label>
+            <input type="number" id="form-abv" step="0.1" placeholder="예: 43">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-notes">테이스팅 노트</label>
+          <textarea id="form-notes" rows="3" placeholder="예: 셰리 오크의 풍부한 과일향, 바닐라, 시나몬"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="form-order">정렬 순서</label>
+          <input type="number" id="form-order" value="0" placeholder="낮을수록 앞에 표시">
+        </div>
+
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-outline" id="btn-cancel">취소</button>
+          <button type="submit" class="btn btn-primary">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PIN Modal -->
+  <div class="modal-overlay" id="pin-modal" style="display:none;">
+    <div class="modal modal-small">
+      <h3>관리자 인증</h3>
+      <p>비밀번호를 입력하세요</p>
+      <div class="pin-input-wrap">
+        <input type="password" id="pin-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" class="pin-input" placeholder="····">
+      </div>
+      <p class="pin-error" id="pin-error" style="display:none;">비밀번호가 틀렸습니다</p>
+      <div class="modal-buttons">
+        <button class="btn btn-outline" id="btn-pin-cancel">취소</button>
+        <button class="btn btn-primary" id="btn-pin-confirm">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm -->
+  <div class="modal-overlay" id="delete-modal" style="display:none;">
+    <div class="modal modal-small">
+      <h3>삭제 확인</h3>
+      <p id="delete-msg">이 위스키를 삭제하시겠습니까?</p>
+      <div class="modal-buttons">
+        <button class="btn btn-outline" id="btn-delete-cancel">취소</button>
+        <button class="btn btn-danger" id="btn-delete-confirm">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// ===== Data Layer =====
+const STORAGE_KEY = 'whiskey_menu_data';
+const CATEGORIES = {
+  all: '전체',
+  scotch: 'Scotch',
+  bourbon: 'Bourbon',
+  rye: 'Rye',
+  japanese: 'Japanese',
+  ib: 'Independent Bottler',
+  cocktail: 'Cocktail',
+  signature: 'Signature',
+  cognac: 'Cognac & Calvados',
+  rum: 'Rum & Tequila',
+  food: 'Food',
+  other: 'Other',
+};
+
+const SUB_CATEGORIES = {
+  scotch: ['Speyside', 'Highland', 'Islay', 'Lowland', 'Campbeltown', 'Island'],
+};
+
+let storageAvailable = true;
+try {
+  localStorage.setItem('_test', '1');
+  localStorage.removeItem('_test');
+} catch {
+  storageAvailable = false;
+}
+
+function loadData() {
+  if (!storageAvailable) return [];
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveData(items) {
+  if (!storageAvailable) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch {}
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function formatPrice(n) {
+  return Number(n).toLocaleString('ko-KR');
+}
+
+// ===== Sample Data =====
+const SAMPLE_DATA = [
+  // === Scotch - Speyside ===
+  {id:'d001', name:'발베니12', nameEn:'Balvenie 12', category:'scotch', region:'Speyside', price:20000, bottlePrice:360000, order:101},
+  {id:'d002', name:'발베니14', nameEn:'Balvenie 14 Caribbean Cask', category:'scotch', region:'Speyside', price:22000, order:102},
+  {id:'d003', name:'발베니15', nameEn:'Balvenie 15 Madeira Cask', category:'scotch', region:'Speyside', price:34000, bottlePrice:700000, order:103},
+  {id:'d004', name:'맥켈란12', nameEn:'Macallan 12 Double Cask', category:'scotch', region:'Speyside', price:20000, bottlePrice:360000, order:104},
+  {id:'d005', name:'맥켈란18', nameEn:'Macallan 18 Sherry Oak', category:'scotch', region:'Speyside', price:70000, order:105},
+  {id:'d006', name:'맥캘란 CS', nameEn:'Macallan Cask Strength', category:'scotch', region:'Speyside', price:100000, order:106},
+  {id:'d007', name:'맥켈란 클래식컷', nameEn:'Macallan Classic Cut', category:'scotch', region:'Speyside', price:30000, order:107},
+  {id:'d008', name:'크라겐모어 12', nameEn:'Cragganmore 12', category:'scotch', region:'Speyside', price:18000, order:108},
+  {id:'d009', name:'글렌파클라스 25', nameEn:'Glenfarclas 25', category:'scotch', region:'Speyside', price:45000, order:109},
+  {id:'d010', name:'글렌파클라스 105', nameEn:'Glenfarclas 105', category:'scotch', region:'Speyside', price:24000, order:110},
+  {id:'d011', name:'글렌알라키 모스카텔', nameEn:'Glenallachie Moscatel', category:'scotch', region:'Speyside', price:30000, order:111},
+  {id:'d012', name:'글렌알라키 신테이스', nameEn:'Glenallachie Sinteis', category:'scotch', region:'Speyside', price:22000, order:112},
+  {id:'d013', name:'벤리악 10', nameEn:'Benriach 10', category:'scotch', region:'Speyside', price:19000, bottlePrice:270000, order:113},
+  {id:'d014', name:'벤리악15', nameEn:'Benriach 15', category:'scotch', region:'Speyside', price:26000, order:114},
+  {id:'d015', name:'벤로막10', nameEn:'Benromach 10', category:'scotch', region:'Speyside', price:18000, order:115},
+  {id:'d016', name:'벤로막 12', nameEn:'Benromach 12', category:'scotch', region:'Speyside', price:20000, order:116},
+  {id:'d017', name:'벤로막15', nameEn:'Benromach 15', category:'scotch', region:'Speyside', price:23000, bottlePrice:460000, order:117},
+  {id:'d018', name:'벤로막cs', nameEn:'Benromach Cask Strength', category:'scotch', region:'Speyside', price:25000, order:118},
+  {id:'d019', name:'글렌글라사 샌드앤드', nameEn:'Glenglassaugh Sandend', category:'scotch', region:'Speyside', price:22000, bottlePrice:390000, order:119},
+  {id:'d020', name:'글렌키스', nameEn:'Glen Keith', category:'scotch', region:'Speyside', price:100000, order:120},
+  {id:'d021', name:'낸닉오가닉cs', nameEn:'Nc\'nean Organic Cask Strength', category:'scotch', region:'Speyside', price:31000, order:121},
+  {id:'d022', name:'아벨라워 아브나흐', nameEn:'Aberlour A\'bunadh', category:'scotch', region:'Speyside', price:23000, order:122},
+  {id:'d023', name:'달달 7번', nameEn:'Daldal No.7', category:'ib', region:'Speyside', price:35000, order:123},
+  {id:'d024', name:'달달 비광', nameEn:'Daldal Bigwang', category:'ib', region:'Speyside', price:72000, bottlePrice:1100000, order:124},
+  {id:'d025', name:'밀턴더프 10년', nameEn:'Miltonduff 10', category:'scotch', region:'Speyside', price:22000, order:125},
+  {id:'d026', name:'링크우드', nameEn:'Linkwood', category:'scotch', region:'Speyside', price:30000, order:126},
+  {id:'d027', name:'마녹모어 2011', nameEn:'Mannochmore 2011', category:'scotch', region:'Speyside', price:30000, order:127},
+  {id:'d028', name:'스모키스캇', nameEn:'Smoky Scot', category:'scotch', region:'Speyside', price:14000, order:128},
+  {id:'d029', name:'쉐리스네이크', nameEn:'Sherry Snake', category:'ib', region:'Speyside', price:37000, order:129},
+  // === Scotch - Highland ===
+  {id:'d030', name:'글렌모렌지 오리지날', nameEn:'Glenmorangie Original', category:'scotch', region:'Highland', price:18000, bottlePrice:330000, order:130},
+  {id:'d031', name:'글렌모렌지 라산타', nameEn:'Glenmorangie Lasanta', category:'scotch', region:'Highland', price:23000, order:131},
+  {id:'d032', name:'모렌지 라산타 15', nameEn:'Glenmorangie Lasanta 15', category:'scotch', region:'Highland', price:25000, order:132},
+  {id:'d033', name:'글렌모렌지 퀸타루반', nameEn:'Glenmorangie Quinta Ruban', category:'scotch', region:'Highland', price:25000, order:133},
+  {id:'d034', name:'글렌모렌지 넥타도르', nameEn:'Glenmorangie Nectar d\'Or', category:'scotch', region:'Highland', price:28000, bottlePrice:430000, order:134},
+  {id:'d035', name:'글렌모렌지 시그넷', nameEn:'Glenmorangie Signet', category:'scotch', region:'Highland', price:50000, bottlePrice:750000, order:135},
+  {id:'d036', name:'글렌모렌지 18', nameEn:'Glenmorangie 18', category:'scotch', region:'Highland', price:35000, order:136},
+  {id:'d037', name:'글렌드로냑 12', nameEn:'GlenDronach 12', category:'scotch', region:'Highland', price:18000, order:137},
+  {id:'d038', name:'글렌드로냑 15', nameEn:'GlenDronach 15 Revival', category:'scotch', region:'Highland', price:24000, bottlePrice:400000, order:138},
+  {id:'d039', name:'글렌드로냑 15 구바틀', nameEn:'GlenDronach 15 Old Bottling', category:'scotch', region:'Highland', price:37000, order:139},
+  {id:'d040', name:'글렌드로냑 구바틀 12', nameEn:'GlenDronach 12 Old Bottling', category:'scotch', region:'Highland', price:21000, order:140},
+  {id:'d041', name:'글렌드로냑cs 배치4', nameEn:'GlenDronach Cask Strength Batch 4', category:'scotch', region:'Highland', price:75000, order:141},
+  {id:'d042', name:'달모어 킹 알렉산더', nameEn:'Dalmore King Alexander III', category:'scotch', region:'Highland', price:70000, order:142},
+  {id:'d043', name:'에드라두어 CS 배치4', nameEn:'Edradour Cask Strength Batch 4', category:'scotch', region:'Highland', price:28000, order:143},
+  {id:'d044', name:'에드라두어 CS 배치5', nameEn:'Edradour Cask Strength Batch 5', category:'scotch', region:'Highland', price:30000, order:144},
+  {id:'d045', name:'오반14', nameEn:'Oban 14', category:'scotch', region:'Highland', price:24000, bottlePrice:350000, order:145},
+  {id:'d046', name:'달위니15', nameEn:'Dalwhinnie 15', category:'scotch', region:'Highland', price:19000, order:146},
+  {id:'d047', name:'글렌고인cs', nameEn:'Glengoyne Cask Strength', category:'scotch', region:'Highland', price:25000, order:147},
+  {id:'d048', name:'아크로이스크 13년', nameEn:'Auchroisk 13', category:'scotch', region:'Speyside', price:35000, order:148},
+  // === Scotch - Islay ===
+  {id:'d049', name:'라프로익 10', nameEn:'Laphroaig 10', category:'scotch', region:'Islay', price:18000, bottlePrice:330000, order:149},
+  {id:'d050', name:'라프로익 쉐리', nameEn:'Laphroaig Sherry Cask', category:'scotch', region:'Islay', price:20000, order:150},
+  {id:'d051', name:'라프로익 쿼터캐스크', nameEn:'Laphroaig Quarter Cask', category:'scotch', region:'Islay', price:25000, bottlePrice:390000, order:151},
+  {id:'d052', name:'라프로익10 cs', nameEn:'Laphroaig 10 Cask Strength', category:'scotch', region:'Islay', price:31000, order:152},
+  {id:'d053', name:'라프로익 옥타브', nameEn:'Laphroaig Octave', category:'scotch', region:'Islay', price:65000, order:153},
+  {id:'d054', name:'아드벡10', nameEn:'Ardbeg 10', category:'scotch', region:'Islay', price:18000, bottlePrice:320000, order:154},
+  {id:'d055', name:'아드벡코리브레칸', nameEn:'Ardbeg Corryvreckan', category:'scotch', region:'Islay', price:25000, bottlePrice:410000, order:155},
+  {id:'d056', name:'아드벡 우가달', nameEn:'Ardbeg Uigeadail', category:'scotch', region:'Islay', price:22000, order:156},
+  {id:'d057', name:'아드벡 스펙타큘럼', nameEn:'Ardbeg Spectacular', category:'scotch', region:'Islay', price:30000, order:157},
+  {id:'d058', name:'옥트모어 15.2', nameEn:'Octomore 15.2', category:'scotch', region:'Islay', price:60000, order:158},
+  {id:'d059', name:'옥트모어15.3', nameEn:'Octomore 15.3', category:'scotch', region:'Islay', price:65000, order:159},
+  {id:'d060', name:'옥토모어15.3', nameEn:'Octomore 15.3 Bottle', category:'scotch', region:'Islay', price:1100000, order:160},
+  {id:'d061', name:'옥토모어 16.1', nameEn:'Octomore 16.1', category:'scotch', region:'Islay', price:55000, bottlePrice:990000, order:161},
+  {id:'d062', name:'옥토모어 16.2', nameEn:'Octomore 16.2', category:'scotch', region:'Islay', price:65000, bottlePrice:1170000, order:162},
+  {id:'d063', name:'옥토모어 16.3', nameEn:'Octomore 16.3', category:'scotch', region:'Islay', price:80000, bottlePrice:1440000, order:163},
+  {id:'d064', name:'라가불린16', nameEn:'Lagavulin 16', category:'scotch', region:'Islay', price:27000, bottlePrice:430000, order:164},
+  {id:'d065', name:'라가불린 8', nameEn:'Lagavulin 8', category:'scotch', region:'Islay', price:24000, order:165},
+  {id:'d066', name:'킬호만 사닉', nameEn:'Kilchoman Sanaig', category:'scotch', region:'Islay', price:21000, order:166},
+  {id:'d067', name:'킬호만 cs', nameEn:'Kilchoman Cask Strength', category:'scotch', region:'Islay', price:26000, order:167},
+  {id:'d068', name:'보모어18', nameEn:'Bowmore 18', category:'scotch', region:'Islay', price:50000, order:168},
+  {id:'d069', name:'보모어 다키스트', nameEn:'Bowmore Darkest', category:'scotch', region:'Islay', price:60000, order:169},
+  {id:'d070', name:'보모어 18 딥 컴플렉스', nameEn:'Bowmore 18 Deep & Complex', category:'scotch', region:'Islay', price:33000, order:170},
+  {id:'d071', name:'포트던다스', nameEn:'Port Dundas', category:'scotch', region:'Lowland', price:20000, order:171},
+  // === Scotch - Island ===
+  {id:'d072', name:'탈리스커 10', nameEn:'Talisker 10', category:'scotch', region:'Island', price:19000, bottlePrice:324000, order:172},
+  {id:'d073', name:'하이랜드파크 CS', nameEn:'Highland Park Cask Strength', category:'scotch', region:'Island', price:25000, order:173},
+  {id:'d074', name:'아란 아마로네', nameEn:'Arran Amarone Cask', category:'scotch', region:'Island', price:22000, order:174},
+  {id:'d075', name:'아란 소태른', nameEn:'Arran Sauternes Cask', category:'scotch', region:'Island', price:22000, bottlePrice:400000, order:175},
+  {id:'d076', name:'아란포트', nameEn:'Arran Port Cask', category:'scotch', region:'Island', price:23000, order:176},
+  {id:'d077', name:'아란 쉐리', nameEn:'Arran Sherry Cask', category:'scotch', region:'Island', price:21000, order:177},
+  {id:'d078', name:'아란쿼터캐스크', nameEn:'Arran Quarter Cask', category:'scotch', region:'Island', price:21000, order:178},
+  // === Scotch - Campbeltown ===
+  {id:'d079', name:'스프링 뱅크 12 cs', nameEn:'Springbank 12 Cask Strength', category:'scotch', region:'Campbeltown', price:72000, order:179},
+  // === Scotch - Lowland ===
+  {id:'d080', name:'글렌킨치', nameEn:'Glenkinchie', category:'scotch', region:'Lowland', price:0, bottlePrice:340000, order:180},
+  // === Bourbon ===
+  {id:'d081', name:'노아스밀', nameEn:'Noah\'s Mill', category:'bourbon', price:30000, order:201},
+  {id:'d082', name:'부커스', nameEn:'Booker\'s', category:'bourbon', price:39000, order:202},
+  {id:'d083', name:'러셀 버번', nameEn:'Russell\'s Reserve Bourbon', category:'bourbon', price:21000, order:203},
+  {id:'d084', name:'납크릭 버번', nameEn:'Knob Creek Bourbon', category:'bourbon', price:17000, order:204},
+  {id:'d085', name:'우드포드리져브 버번', nameEn:'Woodford Reserve', category:'bourbon', price:18000, order:205},
+  {id:'d086', name:'와일드터키 레어브리드', nameEn:'Wild Turkey Rare Breed', category:'bourbon', price:18000, order:206},
+  {id:'d087', name:'바질헤이든', nameEn:'Basil Hayden\'s', category:'bourbon', price:15000, bottlePrice:250000, order:207},
+  {id:'d088', name:'불렛', nameEn:'Bulleit Bourbon', category:'bourbon', price:17000, order:208},
+  {id:'d089', name:'대전 버번', nameEn:'Daejeon Bourbon', category:'bourbon', price:35000, order:209},
+  {id:'d090', name:'베이커스', nameEn:'Baker\'s', category:'bourbon', price:25000, order:210},
+  {id:'d091', name:'포로지스', nameEn:'Four Roses', category:'bourbon', price:19000, order:211},
+  {id:'d092', name:'믹터스버번', nameEn:'Michter\'s Bourbon', category:'bourbon', price:19000, order:212},
+  {id:'d093', name:'메이커스마크cs', nameEn:'Maker\'s Mark Cask Strength', category:'bourbon', price:20000, order:213},
+  {id:'d094', name:'메이커스마크 프랜치오크', nameEn:'Maker\'s Mark French Oak', category:'bourbon', price:16000, order:214},
+  {id:'d095', name:'에즈라브록스', nameEn:'Ezra Brooks', category:'bourbon', price:15000, order:215},
+  // === Rye ===
+  {id:'d096', name:'러셀 라이', nameEn:'Russell\'s Reserve Rye', category:'rye', price:21000, order:251},
+  {id:'d097', name:'불렛 라이', nameEn:'Bulleit Rye', category:'rye', price:17000, order:252},
+  {id:'d098', name:'부산 라이', nameEn:'Busan Rye', category:'rye', price:35000, order:253},
+  {id:'d099', name:'서울 라이', nameEn:'Seoul Rye', category:'rye', price:35000, order:254},
+  {id:'d100', name:'믹터스라이', nameEn:'Michter\'s Rye', category:'rye', price:19000, order:255},
+  // === Japanese ===
+  {id:'d101', name:'닛카 프롬더베럴', nameEn:'Nikka From The Barrel', category:'japanese', price:20000, order:301},
+  {id:'d102', name:'야마자키12', nameEn:'Yamazaki 12', category:'japanese', price:50000, bottlePrice:630000, order:302},
+  {id:'d103', name:'히비키 하모니', nameEn:'Hibiki Harmony', category:'japanese', price:21000, order:303},
+  {id:'d104', name:'츠누키 2025', nameEn:'Tsunuki 2025', category:'japanese', price:32000, order:304},
+  // === Independent Bottler ===
+  {id:'d105', name:'블랙에더 부나하벤', nameEn:'Blackadder Bunnahabhain', category:'ib', price:32000, order:401},
+  {id:'d106', name:'토버모리 16 위스키에이전시', nameEn:'Tobermory 16 Whisky Agency', category:'ib', price:44000, bottlePrice:650000, order:402},
+  {id:'d107', name:'글렌둘란 시그나토리', nameEn:'Glendullan Signatory', category:'ib', price:23000, order:403},
+  {id:'d108', name:'시그나토리 글렌리벳', nameEn:'Signatory Glenlivet', category:'ib', price:46000, order:404},
+  {id:'d109', name:'쿠퍼스 초이스', nameEn:'Cooper\'s Choice', category:'ib', price:30000, order:405},
+  {id:'d110', name:'시그나토리 글렌드로낙', nameEn:'Signatory GlenDronach', category:'ib', price:21000, order:406},
+  // === Cocktail ===
+  {id:'d111', name:'김렛', nameEn:'Gimlet', category:'cocktail', price:17000, order:501},
+  {id:'d112', name:'마티니', nameEn:'Martini', category:'cocktail', price:17000, order:502},
+  {id:'d113', name:'올드페션드', nameEn:'Old Fashioned', category:'cocktail', price:20000, order:503},
+  {id:'d114', name:'사이드카', nameEn:'Sidecar', category:'cocktail', price:20000, order:504},
+  {id:'d115', name:'다이키리', nameEn:'Daiquiri', category:'cocktail', price:17000, order:505},
+  {id:'d116', name:'싸제락', nameEn:'Sazerac', category:'cocktail', price:23000, order:506},
+  {id:'d117', name:'피즈 칵테일', nameEn:'Fizz Cocktail', category:'cocktail', price:17000, order:507},
+  {id:'d118', name:'오큰토션 소비뇽블랑 하이볼', nameEn:'Auchentoshan Sauvignon Blanc Highball', category:'cocktail', price:15000, order:508},
+  {id:'d119', name:'러스티네일', nameEn:'Rusty Nail', category:'cocktail', price:20000, order:509},
+  {id:'d120', name:'프렌치커넥션', nameEn:'French Connection', category:'cocktail', price:20000, order:510},
+  {id:'d121', name:'네그로니', nameEn:'Negroni', category:'cocktail', price:17000, order:511},
+  {id:'d122', name:'마가리타', nameEn:'Margarita', category:'cocktail', price:17000, order:512},
+  {id:'d123', name:'진토닉', nameEn:'Gin & Tonic', category:'cocktail', price:13000, order:513},
+  {id:'d124', name:'모스코뮬', nameEn:'Moscow Mule', category:'cocktail', price:17000, order:514},
+  {id:'d125', name:'베스퍼마티니', nameEn:'Vesper Martini', category:'cocktail', price:19000, order:515},
+  {id:'d126', name:'킬데빌클럽', nameEn:'Kill Devil Club', category:'cocktail', price:23000, order:516},
+  {id:'d127', name:'생제르맹사워', nameEn:'St. Germain Sour', category:'cocktail', price:23000, order:517},
+  {id:'d128', name:'위스키사워', nameEn:'Whiskey Sour', category:'cocktail', price:22000, order:518},
+  {id:'d129', name:'불바디에', nameEn:'Boulevardier', category:'cocktail', price:22000, order:519},
+  {id:'d130', name:'뷰카레', nameEn:'Vieux Carré', category:'cocktail', price:23000, order:520},
+  {id:'d131', name:'블러드메리', nameEn:'Bloody Mary', category:'cocktail', price:20000, order:521},
+  {id:'d132', name:'보스턴쿨러', nameEn:'Boston Cooler', category:'cocktail', price:19000, order:522},
+  {id:'d133', name:'라프로익 쿨러', nameEn:'Laphroaig Cooler', category:'cocktail', price:25000, order:523},
+  {id:'d134', name:'화이트레이디', nameEn:'White Lady', category:'cocktail', price:17000, order:524},
+  {id:'d135', name:'비즈니즈', nameEn:'Bee\'s Knees', category:'cocktail', price:16000, order:525},
+  {id:'d136', name:'모히또', nameEn:'Mojito', category:'cocktail', price:18000, order:526},
+  {id:'d137', name:'프렌치 75', nameEn:'French 75', category:'cocktail', price:18000, order:527},
+  {id:'d138', name:'에스프레소 마티니', nameEn:'Espresso Martini', category:'cocktail', price:22000, order:528},
+  {id:'d139', name:'에비에이션', nameEn:'Aviation', category:'cocktail', price:18000, order:529},
+  {id:'d140', name:'멘하탄', nameEn:'Manhattan', category:'cocktail', price:20000, order:530},
+  {id:'d141', name:'파우스트', nameEn:'Faust', category:'cocktail', price:25000, order:531},
+  {id:'d142', name:'브루클린', nameEn:'Brooklyn', category:'cocktail', price:22000, order:532},
+  {id:'d143', name:'블랙러시안', nameEn:'Black Russian', category:'cocktail', price:17000, order:533},
+  {id:'d144', name:'클로버클럽', nameEn:'Clover Club', category:'cocktail', price:20000, order:534},
+  {id:'d145', name:'프란젤리코 언더락', nameEn:'Frangelico On The Rocks', category:'cocktail', price:10000, order:535},
+  {id:'d146', name:'진리키', nameEn:'Gin Rickey', category:'cocktail', price:18000, order:536},
+  {id:'d147', name:'올드멕시코', nameEn:'Old Mexico', category:'cocktail', price:18000, order:537},
+  {id:'d148', name:'블랙 맨하탄', nameEn:'Black Manhattan', category:'cocktail', price:22000, order:538},
+  {id:'d149', name:'사우스사이드', nameEn:'Southside', category:'cocktail', price:17000, order:539},
+  {id:'d150', name:'조니블랙하이볼', nameEn:'JW Black Highball', category:'cocktail', price:15000, order:540},
+  {id:'d151', name:'카타르시스', nameEn:'Catharsis', category:'cocktail', price:25000, order:541},
+  {id:'d152', name:'롱티', nameEn:'Long Tea', category:'cocktail', price:20000, order:542},
+  {id:'d153', name:'라즈베리 레몬에이드', nameEn:'Raspberry Lemonade', category:'cocktail', price:18000, order:543},
+  {id:'d154', name:'팔로마', nameEn:'Paloma', category:'cocktail', price:18000, order:544},
+  {id:'d155', name:'멜론사워', nameEn:'Melon Sour', category:'cocktail', price:18000, order:545},
+  {id:'d156', name:'코스모폴리탄', nameEn:'Cosmopolitan', category:'cocktail', price:18000, order:546},
+  {id:'d157', name:'바질스매쉬', nameEn:'Basil Smash', category:'cocktail', price:20000, order:547},
+  {id:'d158', name:'데킬라네그로니', nameEn:'Tequila Negroni', category:'cocktail', price:17000, order:548},
+  {id:'d159', name:'화이트포트토닉', nameEn:'White Port & Tonic', category:'cocktail', price:18000, order:549},
+  {id:'d160', name:'마르티네즈', nameEn:'Martinez', category:'cocktail', price:18000, order:550},
+  {id:'d161', name:'얼그레이진토닉', nameEn:'Earl Grey Gin & Tonic', category:'cocktail', price:14000, order:551},
+  {id:'d162', name:'W&B', nameEn:'Whiskey & Bitters', category:'cocktail', price:23000, order:552},
+  {id:'d163', name:'페니실린', nameEn:'Penicillin', category:'cocktail', price:25000, order:553},
+  {id:'d164', name:'페이퍼플래인', nameEn:'Paper Plane', category:'cocktail', price:23000, order:554},
+  {id:'d165', name:'데킬라선키스', nameEn:'Tequila Sunrise', category:'cocktail', price:20000, order:555},
+  {id:'d166', name:'진피즈', nameEn:'Gin Fizz', category:'cocktail', price:15000, order:556},
+  {id:'d167', name:'베이 브리즈', nameEn:'Bay Breeze', category:'cocktail', price:17000, order:557},
+  {id:'d168', name:'레드스냅', nameEn:'Red Snapper', category:'cocktail', price:17000, order:558},
+  {id:'d169', name:'블러드 앤 샌드', nameEn:'Blood & Sand', category:'cocktail', price:17000, order:559},
+  {id:'d170', name:'가미카제', nameEn:'Kamikaze', category:'cocktail', price:17000, order:560},
+  {id:'d171', name:'행키팽키', nameEn:'Hanky Panky', category:'cocktail', price:18000, order:561},
+  {id:'d172', name:'라스트워드', nameEn:'Last Word', category:'cocktail', price:25000, order:562},
+  {id:'d173', name:'브랜디 알렉산더', nameEn:'Brandy Alexander', category:'cocktail', price:21000, order:563},
+  {id:'d174', name:'럼피치사워', nameEn:'Rum Peach Sour', category:'cocktail', price:20000, order:564},
+  {id:'d175', name:'갓파더', nameEn:'Godfather', category:'cocktail', price:20000, order:565},
+  {id:'d176', name:'XYZ', nameEn:'XYZ', category:'cocktail', price:18000, order:566},
+  {id:'d177', name:'민트 줄랩', nameEn:'Mint Julep', category:'cocktail', price:24000, order:567},
+  {id:'d178', name:'브랜디사워', nameEn:'Brandy Sour', category:'cocktail', price:24000, order:568},
+  {id:'d179', name:'애플마티니', nameEn:'Apple Martini', category:'cocktail', price:18000, order:569},
+  {id:'d180', name:'에스프레소 다이키리', nameEn:'Espresso Daiquiri', category:'cocktail', price:18000, order:570},
+  {id:'d181', name:'데킬라로즈사워', nameEn:'Tequila Rose Sour', category:'cocktail', price:18000, order:571},
+  {id:'d182', name:'핸드릭스진토닉', nameEn:'Hendrick\'s Gin & Tonic', category:'cocktail', price:16000, order:572},
+  {id:'d183', name:'골든 캐딜락', nameEn:'Golden Cadillac', category:'cocktail', price:22000, order:573},
+  {id:'d184', name:'런던다크', nameEn:'London Dark', category:'cocktail', price:18000, order:574},
+  {id:'d185', name:'라모스진피즈', nameEn:'Ramos Gin Fizz', category:'cocktail', price:30000, order:575},
+  {id:'d186', name:'부츠스프랩리키', nameEn:'Boots Strap Rickey', category:'cocktail', price:20000, order:576},
+  {id:'d187', name:'토론토', nameEn:'Toronto', category:'cocktail', price:22000, order:577},
+  {id:'d188', name:'갓마더', nameEn:'Godmother', category:'cocktail', price:17000, order:578},
+  {id:'d189', name:'버번콕', nameEn:'Bourbon Coke', category:'cocktail', price:21000, order:579},
+  {id:'d190', name:'럼사워', nameEn:'Rum Sour', category:'cocktail', price:20000, order:580},
+  {id:'d191', name:'보드카 마티니', nameEn:'Vodka Martini', category:'cocktail', price:18000, order:581},
+  // === Signature ===
+  {id:'d192', name:'참들', nameEn:'Chamdeul', category:'signature', price:22000, order:601},
+  {id:'d193', name:'로즈마리피즈', nameEn:'Rosemary Fizz', category:'signature', price:20000, order:602},
+  {id:'d194', name:'버번플렛화이트', nameEn:'Bourbon Flat White', category:'signature', price:24000, order:603},
+  {id:'d195', name:'깻잎모히또', nameEn:'Perilla Mojito', category:'signature', price:20000, order:604},
+  {id:'d196', name:'파인애픽', nameEn:'Pineapic', category:'signature', price:14000, order:605},
+  {id:'d197', name:'제리코', nameEn:'Jericho', category:'signature', price:28000, order:606},
+  {id:'d198', name:'더 콘티넨탈', nameEn:'The Continental', category:'signature', price:25000, order:607},
+  {id:'d199', name:'새달라', nameEn:'Saedala', category:'signature', price:18000, order:608},
+  {id:'d200', name:'웨이드웨폰', nameEn:'Wade Weapon', category:'signature', price:22000, order:609},
+  {id:'d201', name:'요구요구', nameEn:'Yogu Yogu', category:'signature', price:20000, order:610},
+  {id:'d202', name:'패션펀치', nameEn:'Passion Punch', category:'signature', price:25000, order:611},
+  {id:'d203', name:'로제', nameEn:'Rosé', category:'signature', price:23000, order:612},
+  {id:'d204', name:'김상민 세트', nameEn:'Kim Sangmin Set', category:'signature', price:50000, order:613},
+  // === Cognac & Calvados ===
+  {id:'d205', name:'헤네시vsop', nameEn:'Hennessy VSOP', category:'cognac', price:17000, order:701},
+  {id:'d206', name:'헤네시 xo', nameEn:'Hennessy XO', category:'cognac', price:50000, order:702},
+  {id:'d207', name:'헤네시 xo 구형', nameEn:'Hennessy XO Old Bottling', category:'cognac', price:50000, order:703},
+  {id:'d208', name:'헤네시 파라디', nameEn:'Hennessy Paradis', category:'cognac', price:120000, order:704},
+  {id:'d209', name:'레미마틴 XO', nameEn:'Rémy Martin XO', category:'cognac', price:50000, order:705},
+  {id:'d210', name:'레미마틴xo 구형', nameEn:'Rémy Martin XO Old Bottling', category:'cognac', price:25000, order:706},
+  {id:'d211', name:'까뮤xo', nameEn:'Camus XO', category:'cognac', price:30000, order:707},
+  {id:'d212', name:'크리스찬드루엥 xo', nameEn:'Christian Drouin XO', category:'cognac', price:25000, order:708},
+  {id:'d213', name:'크리스찬드루엥 오다주', nameEn:'Christian Drouin Hors d\'Age', category:'cognac', price:35000, order:709},
+  {id:'d214', name:'파코리30년', nameEn:'Pacory 30 Year', category:'cognac', price:40000, order:710},
+  {id:'d215', name:'마그루아', nameEn:'Magloire', category:'cognac', price:48000, order:711},
+  {id:'d216', name:'도멘 10주년 알마냑', nameEn:'Domaine 10th Anniversary Armagnac', category:'cognac', price:43000, order:712},
+  {id:'d217', name:'알마냑 24년', nameEn:'Armagnac 24 Year', category:'cognac', price:50000, order:713},
+  {id:'d218', name:'알마냑 30년 도멘 푸이', nameEn:'Armagnac 30 Year Domaine de Pouy', category:'cognac', price:65000, order:714},
+  {id:'d219', name:'알마냑 33년', nameEn:'Armagnac 33 Year', category:'cognac', price:65000, order:715},
+  // === Rum & Tequila ===
+  {id:'d220', name:'디플로마티코 리제르바', nameEn:'Diplomático Reserva Exclusiva', category:'rum', price:18000, bottlePrice:250000, order:751},
+  {id:'d221', name:'햄든1753', nameEn:'Hampden 1753', category:'rum', price:25000, order:752},
+  {id:'d222', name:'햄든그레이트하우스', nameEn:'Hampden Great House', category:'rum', price:50000, order:753},
+  {id:'d223', name:'골드오브 모리셔스', nameEn:'Gold of Mauritius', category:'rum', price:17000, order:754},
+  {id:'d224', name:'돈홀리오 실버', nameEn:'Don Julio Silver', category:'rum', price:250000, order:755},
+  // === Food ===
+  {id:'d225', name:'제육볶음', nameEn:'Spicy Pork Stir-fry', category:'food', price:15000, order:801},
+  {id:'d226', name:'된장카레라이스', nameEn:'Doenjang Curry Rice', category:'food', price:15000, order:802},
+  {id:'d227', name:'오늘의메뉴', nameEn:'Today\'s Menu', category:'food', price:15000, order:803},
+  {id:'d228', name:'오늘의페어링', nameEn:'Today\'s Pairing', category:'food', price:20000, order:804},
+  {id:'d229', name:'햄버거', nameEn:'Hamburger', category:'food', price:12000, order:805},
+  {id:'d230', name:'초콜렛', nameEn:'Chocolate', category:'food', price:5000, order:806},
+  {id:'d231', name:'공심채', nameEn:'Morning Glory', category:'food', price:8000, order:807},
+  {id:'d232', name:'브로큰차지', nameEn:'Broken Charge', category:'other', price:18000, order:808},
+  {id:'d233', name:'피칸파이', nameEn:'Pecan Pie', category:'food', price:8000, order:809},
+  // === Other ===
+  {id:'d234', name:'하이코스트 쉐리 12년', nameEn:'High Coast Sherry 12', category:'other', region:'Sweden', price:25000, order:901},
+  {id:'d235', name:'하이코스트 노르딕', nameEn:'High Coast Nordic', category:'other', region:'Sweden', price:32000, order:902},
+  {id:'d236', name:'하이코스트 인플레임스', nameEn:'High Coast In Flames', category:'other', region:'Sweden', price:40000, order:903},
+  {id:'d237', name:'카발란 비노바리끄', nameEn:'Kavalan Vinho Barrique', category:'other', region:'Taiwan', price:50000, order:904},
+  {id:'d238', name:'카발란 버번 솔리스트', nameEn:'Kavalan Bourbon Soloist', category:'other', region:'Taiwan', price:25000, order:905},
+  {id:'d239', name:'옐로우로즈 서울에디션', nameEn:'Yellow Rose Seoul Edition', category:'other', region:'USA', price:27000, order:906},
+  {id:'d240', name:'드랑브이', nameEn:'Drambuie', category:'other', price:15000, order:907},
+  {id:'d241', name:'압생트', nameEn:'Absinthe', category:'other', price:15000, order:908},
+];
+
+// ===== State =====
+let items = loadData();
+if (items.length === 0) {
+  items = SAMPLE_DATA;
+  saveData(items);
+}
+let activeCategory = 'all';
+let activeSubCategory = 'all';
+let searchQuery = '';
+let deleteTargetId = null;
+
+// ===== DOM Refs =====
+const menuView = document.getElementById('menu-view');
+const adminView = document.getElementById('admin-view');
+const categoryNav = document.getElementById('category-nav');
+const subcategoryNav = document.getElementById('subcategory-nav');
+const menuGrid = document.getElementById('menu-grid');
+const emptyState = document.getElementById('empty-state');
+const adminList = document.getElementById('admin-list');
+const modal = document.getElementById('modal');
+const deleteModal = document.getElementById('delete-modal');
+const form = document.getElementById('whiskey-form');
+
+// ===== Render: Categories =====
+function renderCategories() {
+  const usedCategories = new Set(items.map(i => i.category));
+  categoryNav.innerHTML = '';
+
+  Object.entries(CATEGORIES).forEach(([key, label]) => {
+    if (key !== 'all' && !usedCategories.has(key)) return;
+    if (key === 'all' && items.length === 0) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'category-tab' + (activeCategory === key ? ' active' : '');
+    btn.textContent = label;
+    btn.onclick = () => {
+      activeCategory = key;
+      activeSubCategory = 'all';
+      renderCategories();
+      renderSubCategories();
+      renderMenu();
+    };
+    categoryNav.appendChild(btn);
+  });
+
+  renderSubCategories();
+}
+
+function renderSubCategories() {
+  subcategoryNav.innerHTML = '';
+  const subs = SUB_CATEGORIES[activeCategory];
+  if (!subs) return;
+
+  const usedRegions = new Set(
+    items.filter(i => i.category === activeCategory).map(i => i.region)
+  );
+
+  const visibleSubs = subs.filter(s => usedRegions.has(s));
+  if (visibleSubs.length <= 1) return;
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'subcategory-tab' + (activeSubCategory === 'all' ? ' active' : '');
+  allBtn.textContent = 'All';
+  allBtn.onclick = () => {
+    activeSubCategory = 'all';
+    renderSubCategories();
+    renderMenu();
+  };
+  subcategoryNav.appendChild(allBtn);
+
+  visibleSubs.forEach(sub => {
+    const btn = document.createElement('button');
+    btn.className = 'subcategory-tab' + (activeSubCategory === sub ? ' active' : '');
+    btn.textContent = sub;
+    btn.onclick = () => {
+      activeSubCategory = sub;
+      renderSubCategories();
+      renderMenu();
+    };
+    subcategoryNav.appendChild(btn);
+  });
+}
+
+// ===== Render: Menu Cards =====
+function renderMenu() {
+  const filtered = items
+    .filter(i => {
+      if (!searchQuery) return true;
+      return (i.name && i.name.toLowerCase().includes(searchQuery))
+        || (i.nameEn && i.nameEn.toLowerCase().includes(searchQuery))
+        || (i.notes && i.notes.toLowerCase().includes(searchQuery));
+    })
+    .filter(i => activeCategory === 'all' || i.category === activeCategory)
+    .filter(i => activeSubCategory === 'all' || i.region === activeSubCategory)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  if (filtered.length === 0 && items.length === 0) {
+    menuGrid.style.display = 'none';
+    emptyState.style.display = 'flex';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+  menuGrid.style.display = 'grid';
+
+  menuGrid.innerHTML = filtered.map(item => `
+    <div class="menu-card${item.hidden ? ' soldout' : ''}">
+      ${item.hidden ? '<div class="soldout-badge">SOLD OUT</div>' : ''}
+      <div class="card-body">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${escapeHtml(item.name)}</div>
+            ${item.nameEn ? `<div class="card-name-en">${escapeHtml(item.nameEn)}</div>` : ''}
+          </div>
+          ${item.abv ? `<div class="card-abv">${item.abv}%</div>` : ''}
+        </div>
+        ${item.region ? `<div class="card-region">${escapeHtml(item.region)}</div>` : ''}
+        ${item.notes ? `<div class="card-notes">${escapeHtml(item.notes)}</div>` : ''}
+        <div class="card-prices">
+          <div class="card-price">${formatPrice(item.price)}<span> 원</span></div>
+          ${item.bottlePrice ? `<div class="card-bottle-price">Bottle ${formatPrice(item.bottlePrice)}<span> 원</span></div>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== Render: Admin List =====
+function renderAdminList() {
+  const sorted = [...items].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  if (sorted.length === 0) {
+    adminList.innerHTML = '<div class="empty-state"><p>등록된 위스키가 없습니다</p></div>';
+    return;
+  }
+
+  adminList.innerHTML = sorted.map(item => `
+    <div class="admin-item${item.hidden ? ' soldout-item' : ''}">
+      <div class="admin-item-info">
+        <div class="admin-item-name">${escapeHtml(item.name)}</div>
+        <div class="admin-item-detail">
+          ${CATEGORIES[item.category] || item.category}
+          ${item.region ? ' · ' + escapeHtml(item.region) : ''}
+          ${item.abv ? ' · ' + item.abv + '%' : ''}
+           · ${formatPrice(item.price)}원
+          ${item.bottlePrice ? ' · Bottle ' + formatPrice(item.bottlePrice) + '원' : ''}
+        </div>
+      </div>
+      <div class="admin-item-actions">
+        <button class="btn ${item.hidden ? 'btn-hidden' : 'btn-visible'} btn-small" onclick="toggleHidden('${item.id}')">${item.hidden ? 'SOLD OUT' : '판매중'}</button>
+        <button class="btn btn-outline btn-small" onclick="editItem('${item.id}')">수정</button>
+        <button class="btn btn-danger btn-small" onclick="confirmDelete('${item.id}')">삭제</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== PIN / Admin Toggle =====
+const ADMIN_PIN = '0000';
+const pinModal = document.getElementById('pin-modal');
+const pinInput = document.getElementById('pin-input');
+const pinError = document.getElementById('pin-error');
+
+document.getElementById('admin-toggle').onclick = () => {
+  pinInput.value = '';
+  pinError.style.display = 'none';
+  pinModal.style.display = 'flex';
+  setTimeout(() => pinInput.focus(), 100);
+};
+
+document.getElementById('btn-pin-confirm').onclick = () => {
+  if (pinInput.value === ADMIN_PIN) {
+    pinModal.style.display = 'none';
+    menuView.style.display = 'none';
+    adminView.style.display = 'flex';
+    renderAdminList();
+  } else {
+    pinError.style.display = 'block';
+    pinInput.value = '';
+    pinInput.focus();
+  }
+};
+
+document.getElementById('btn-pin-cancel').onclick = () => {
+  pinModal.style.display = 'none';
+};
+
+pinInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('btn-pin-confirm').click();
+});
+
+pinModal.onclick = (e) => { if (e.target === pinModal) pinModal.style.display = 'none'; };
+
+document.getElementById('btn-close-admin').onclick = () => {
+  adminView.style.display = 'none';
+  menuView.style.display = 'flex';
+  renderCategories();
+  renderMenu();
+};
+
+// ===== Add / Edit Modal =====
+document.getElementById('btn-add').onclick = () => openModal();
+
+function updateSubCategoryOptions(category, selected) {
+  const sel = document.getElementById('form-subcategory');
+  sel.innerHTML = '<option value="">없음</option>';
+  const subs = SUB_CATEGORIES[category];
+  if (subs) {
+    subs.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      if (s === selected) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+document.getElementById('form-category').onchange = (e) => {
+  updateSubCategoryOptions(e.target.value, '');
+};
+
+document.getElementById('form-subcategory').onchange = (e) => {
+  if (e.target.value) {
+    document.getElementById('form-region').value = e.target.value;
+  }
+};
+
+function openModal(item = null) {
+  document.getElementById('modal-title').textContent = item ? '위스키 수정' : '위스키 추가';
+  document.getElementById('form-id').value = item ? item.id : '';
+  document.getElementById('form-name').value = item ? item.name : '';
+  document.getElementById('form-name-en').value = item ? (item.nameEn || '') : '';
+  document.getElementById('form-category').value = item ? item.category : '';
+  updateSubCategoryOptions(item ? item.category : '', item ? item.region : '');
+  document.getElementById('form-region').value = item ? (item.region || '') : '';
+  document.getElementById('form-price').value = item ? item.price : '';
+  document.getElementById('form-bottle-price').value = item && item.bottlePrice ? item.bottlePrice : '';
+  document.getElementById('form-abv').value = item ? (item.abv || '') : '';
+  document.getElementById('form-notes').value = item ? (item.notes || '') : '';
+  document.getElementById('form-order').value = item ? (item.order || 0) : 0;
+
+  modal.style.display = 'flex';
+}
+
+window.editItem = function(id) {
+  const item = items.find(i => i.id === id);
+  if (item) openModal(item);
+};
+
+document.getElementById('btn-cancel').onclick = () => {
+  modal.style.display = 'none';
+};
+
+// Form submit
+form.onsubmit = (e) => {
+  e.preventDefault();
+  const id = document.getElementById('form-id').value;
+
+  const data = {
+    id: id || generateId(),
+    name: document.getElementById('form-name').value.trim(),
+    nameEn: document.getElementById('form-name-en').value.trim() || null,
+    category: document.getElementById('form-category').value,
+    region: document.getElementById('form-region').value.trim(),
+    price: Number(document.getElementById('form-price').value),
+    bottlePrice: Number(document.getElementById('form-bottle-price').value) || null,
+    abv: Number(document.getElementById('form-abv').value) || null,
+    notes: document.getElementById('form-notes').value.trim(),
+    order: Number(document.getElementById('form-order').value) || 0,
+  };
+
+  if (id) {
+    items = items.map(i => i.id === id ? data : i);
+  } else {
+    items.push(data);
+  }
+
+  saveData(items);
+  modal.style.display = 'none';
+  renderAdminList();
+};
+
+// ===== Delete =====
+window.toggleHidden = function(id) {
+  items = items.map(i => i.id === id ? {...i, hidden: !i.hidden} : i);
+  saveData(items);
+  renderAdminList();
+};
+
+window.confirmDelete = function(id) {
+  deleteTargetId = id;
+  const item = items.find(i => i.id === id);
+  document.getElementById('delete-msg').textContent = `"${item.name}"을(를) 삭제하시겠습니까?`;
+  deleteModal.style.display = 'flex';
+};
+
+document.getElementById('btn-delete-cancel').onclick = () => {
+  deleteModal.style.display = 'none';
+  deleteTargetId = null;
+};
+
+document.getElementById('btn-delete-confirm').onclick = () => {
+  if (deleteTargetId) {
+    items = items.filter(i => i.id !== deleteTargetId);
+    saveData(items);
+    deleteTargetId = null;
+    deleteModal.style.display = 'none';
+    renderAdminList();
+  }
+};
+
+// ===== Export / Import =====
+document.getElementById('btn-export').onclick = () => {
+  const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `whiskey_backup_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById('btn-import').onclick = () => {
+  document.getElementById('import-file').click();
+};
+
+document.getElementById('import-file').onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!Array.isArray(imported)) throw new Error('Invalid format');
+      items = imported;
+      saveData(items);
+      renderAdminList();
+      alert(`${imported.length}개의 위스키를 가져왔습니다.`);
+    } catch {
+      alert('올바른 백업 파일이 아닙니다.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+};
+
+// ===== Utilities =====
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Close modals on overlay click
+modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+deleteModal.onclick = (e) => { if (e.target === deleteModal) deleteModal.style.display = 'none'; };
+
+// ===== Search =====
+document.getElementById('search-input').oninput = (e) => {
+  searchQuery = e.target.value.toLowerCase().trim();
+  renderCategories();
+  renderMenu();
+};
+
+// ===== Init =====
+renderCategories();
+renderMenu();
+  </script>
+</body>
+</html>
